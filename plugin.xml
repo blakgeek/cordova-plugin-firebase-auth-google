@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
+    id="cordova-plugin-firebase-auth" version="0.1.0">
+    <name>Firebase Authentication</name>
+    <description>Adds support for Firebase Authenication to your Cordova/PhoneGap apps.</description>
+    <license>Apache 2.0</license>
+    <keywords>flurry,firebase,cordova,authentication</keywords>
+    <author>Carlos "blakgeek" Lawton</author>
+    <repo>https://github.com/blakgeek/cordova-plugin-firebase-auth.git</repo>
+    <issue>https://github.com/blakgeek/cordova-plugin-firebase-auth/issues</issue>
+
+    <js-module src="www/plugin.js" name="FirebaseAuthPlugin">
+        <clobbers target="FirebaseAuth" />
+    </js-module>
+
+    <engines>
+        <engine name="cordova" version=">=6.0.0" />
+        <engine name="cordova-android" version=">=4.0.0" />
+        <engine name="cordova-plugman" version=">=4.2.0" />
+    </engines>
+
+    <dependency id="cordova-plugin-cocoapod-support"/>
+
+    <hook type="after_plugin_install" src="hooks/configure-plugin.js"/>
+    <hook type="after_prepare" src="hooks/configure-ios.js"/>
+    <hook type="after_prepare" src="hooks/configure-android.js"/>
+
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="FirebaseAuthPlugin">
+                <param name="ios-package" value="FirebaseAuthPlugin" />
+            </feature>
+        </config-file>
+        <header-file src="src/ios/FirebaseAuthPlugin.h" />
+        <source-file src="src/ios/FirebaseAuthPlugin.m" />
+        <pod id="Firebase/Auth" />
+        <pod id="GoogleSignIn" />
+    </platform>
+
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="FirebaseAuthPlugin">
+                <param name="android-package" value="com.blakgeek.cordova.plugin.FirebaseAuthPlugin" />
+            </feature>
+        </config-file>
+
+        <framework src="src/android/plugin.gradle" custom="true" type="gradleReference" />
+        <framework src="com.google.firebase:firebase-auth:9.2.1" />
+        <framework src="com.google.android.gms:play-services-auth:9.2.1" />
+
+        <source-file src="src/android/com/blakgeek/cordova/plugin/FirebaseAuthPlugin.java"
+            target-dir="src/com/blakgeek/cordova/plugin/" />
+        <config-file target="AndroidManifest.xml" parent="/*/application">
+            <meta-data android:name="com.google.android.gms.version"
+                android:value="@integer/google_play_services_version" />
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET" />
+        </config-file>
+    </platform>
+</plugin>
