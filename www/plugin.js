@@ -1,21 +1,21 @@
-
+var exec = require('cordova/exec');
 
 function FirebaseAuth() {
 
-	this.init = function(successCallback, failureCallback) {
+    exec(dispatchEvent, null, 'FirebaseAuthPlugin', 'initialize', [])
 
-		return cordova.exec(successCallback, failureCallback, 'FirebaseAuthPlugin', 'initialize', []);
-	};
+    this.signIn = function () {
 
-	this.login = function(successCallback, failureCallback) {
+        return exec(null, null, 'FirebaseAuthPlugin', 'signIn', []);
+    };
 
-		return cordova.exec(successCallback, failureCallback, 'FirebaseAuthPlugin', 'signIn', []);
-	};
+    function dispatchEvent(event) {
 
+        window.dispatchEvent(new CustomEvent(event.type, {detail: event.data}));
+    }
 }
 
-if(typeof module !== undefined && module.exports) {
+if (typeof module !== undefined && module.exports) {
 
-	module.exports = FirebaseAuth;
+    module.exports = FirebaseAuth;
 }
-

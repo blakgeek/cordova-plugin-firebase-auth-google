@@ -26,11 +26,28 @@ module.exports = function (context) {
         shell.cp(googleServicesJsonSrcPath, googleServicesJsonDestPath);
     }
 
+    function findClientId(client) {
+
+        var oAuthEntries = client.oauth_client;
+        var i;
+
+        for (i = 0; i < oAuthEntries.length; i++) {
+
+            if (oAuthEntries[i].client_type === 3) {
+                return oAuthEntries[i].client_id;
+            }
+        }
+
+        // this should never happen
+        return '';
+    }
+
     function updateStringsXml() {
 
         var config = findAppConfig();
         var client = config.client;
         var project = config.project;
+        var clientId = findClientId(client);
 
         if (!client) {
             console.error('Client [%s] is not present in google-services.json', appPackage);
@@ -42,13 +59,14 @@ module.exports = function (context) {
             '<resources>'
         ];
 
-        xml.push('<string name="default_web_client_id" translatable="false">', client.oauth_client[0].client_id, '</string>');
-        xml.push('<string name="firebase_database_url" translatable="false">', project.firebase_url, '</string>');
-        xml.push('<string name="gcm_defaultSenderId" translatable="false">', project.project_number, '</string>');
-        xml.push('<string name="google_api_key" translatable="false">', client.api_key[0].current_key, '</string>');
-        xml.push('<string name="google_app_id" translatable="false">', client.client_info.mobilesdk_app_id, '</string>');
-        xml.push('<string name="google_crash_reporting_api_key" translatable="false">', client.api_key[0].current_key, '</string>');
-        xml.push('<string name="google_storage_bucket" translatable="false">', project.storage_bucket, '</string>');
+
+        xml.push('<string name="default_web_client_id" translatable="false">' + clientId + '</string>');
+        xml.push('<string name="firebase_database_url" translatable="false">' + project.firebase_url + '</string>');
+        xml.push('<string name="gcm_defaultSenderId" translatable="false">' + project.project_number + '</string>');
+        xml.push('<string name="google_api_key" translatable="false">' + client.api_key[0].current_key + '</string>');
+        xml.push('<string name="google_app_id" translatable="false">' + client.client_info.mobilesdk_app_id + '</string>');
+        xml.push('<string name="google_crash_reporting_api_key" translatable="false">' + client.api_key[0].current_key + '</string>');
+        xml.push('<string name="google_storage_bucket" translatable="false">' + project.storage_bucket + '</string>');
 
         xml.push('</resources>');
 
