@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-firebase-auth",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Adds support for Firebase authentication.",
   "repository": {
     "type": "git",
