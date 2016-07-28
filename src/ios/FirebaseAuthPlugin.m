@@ -5,9 +5,9 @@
 
 static void swizzleMethod(Class class, SEL destinationSelector, SEL sourceSelector);
 
-@implementation FirebaseAuthPlugin
+@implementation AppDelegate (FoSwizzle)
 
-- (void)pluginInitialize {
++ (void)load {
 
     swizzleMethod([AppDelegate class],
             @selector(application:openURL:options:),
@@ -15,39 +15,6 @@ static void swizzleMethod(Class class, SEL destinationSelector, SEL sourceSelect
     swizzleMethod([AppDelegate class],
             @selector(application:openURL:sourceApplication:annotation:),
             @selector(identity_application:openURL:sourceApplication:annotation:));
-
-    [super pluginInitialize];
-}
-
-- (void)initialize:(CDVInvokedUrlCommand *)command {
-
-    [FIRApp configure];
-    [GIDSignIn sharedInstance].clientID = [FIRApp defaultApp].options.clientID;
-    [GIDSignIn sharedInstance].uiDelegate = self.viewController;
-    [GIDSignIn sharedInstance].delegate = self;
-
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
-- (void)signIn:(CDVInvokedUrlCommand *)command {
-
-    [[GIDSignIn sharedInstance] signIn];
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
-#pragma mark - Helper functions
-
-- (NSString *)toJSON:(NSDictionary *)data {
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:&error];
-
-    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-}
-
-- (void)signIn:(GIDSignIn *)signIn didSignInForUser:(GIDGoogleUser *)user withError:(NSError *)error {
-
 }
 
 #pragma mark - AppDelegate Swizzles
@@ -68,6 +35,119 @@ static void swizzleMethod(Class class, SEL destinationSelector, SEL sourceSelect
                                sourceApplication:sourceApplication
                                       annotation:annotation];
 }
+@end
+
+@implementation FirebaseAuthPlugin
+
+- (void)initialize:(CDVInvokedUrlCommand *)command {
+
+    [FIRApp configure];
+    [GIDSignIn sharedInstance].clientID = [FIRApp defaultApp].options.clientID;
+    [GIDSignIn sharedInstance].uiDelegate = self.viewController;
+    [GIDSignIn sharedInstance].delegate = self;
+
+    self.eventCallbackId = command.callbackId;
+}
+
+- (void)signIn:(CDVInvokedUrlCommand *)command {
+
+    [[GIDSignIn sharedInstance] signIn];
+}
+
+- (void)signOut:(CDVInvokedUrlCommand *)command {
+
+    [[GIDSignIn sharedInstance] signOut];
+}
+
+#pragma mark - Helper functions
+
+- (NSString *)toJSON:(NSDictionary *)data {
+    NSError *error = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:&error];
+
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
+- (void)signIn:(GIDSignIn *)signIn didSignInForUser:(GIDGoogleUser *)user withError:(NSError *)error {
+
+    NSDictionary *message = nil;
+    if (error == nil) {
+        GIDAuthentication *authentication = user.authentication;
+        FIRAuthCredential *credential = [FIRGoogleAuthProvider credentialWithIDToken:authentication.idToken
+                                                                         accessToken:authentication.accessToken];
+        [[FIRAuth auth] signInWithCredential:credential
+                                  completion:[self handleLogin]];
+    } else {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{
+                @"type" : @"signoutfailure",
+                @"data" : @{
+
+                        @"code" : [NSNumber numberWithInteger:error.code],
+                        @"message" : error.description
+                }
+        }];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
+    }
+
+}
+
+- (void (^)(FIRUser *, NSError *))handleLogin {
+    return ^(FIRUser *user, NSError *error) {
+
+        NSDictionary *message;
+        if (error == nil) {
+
+            message = @{
+                    @"type" : @"signinsuccess",
+                    @"data" : @{
+                            @"id" : user.uid == nil ? [NSNull null] : user.uid,
+                            @"name" : user.displayName == nil ? [NSNull null] : user.displayName,
+                            @"email" : user.email == nil ? [NSNull null] : user.email,
+                            @"photoUrl" : user.photoURL == nil ? [NSNull null] : [user.photoURL absoluteString]
+                    }
+            };
+        } else {
+            message = @{
+                    @"type" : @"signinfailure",
+                    @"data" : @{
+
+                            @"code" : [NSNumber numberWithInteger:error.code],
+                            @"message" : error.description == nil ? [NSNull null] : error.description
+                    }
+            };
+        }
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
+    };
+}
+
+- (void)signIn:(GIDSignIn *)signIn didDisconnectWithUser:(GIDGoogleUser *)user withError:(NSError *)error {
+
+    NSDictionary *message = nil;
+    if (error == nil) {
+        GIDProfileData *profile = user.profile;
+        message = @{
+                @"type" : @"signoutsuccess"
+        };
+    } else {
+        message = @{
+                @"type" : @"signoutfailure",
+                @"data" : @{
+
+                        @"code" : [NSNumber numberWithInteger:error.code],
+                        @"message" : error.description == nil ? [NSNull null] : error.description
+                }
+        };
+    }
+
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
+}
+
 
 @end
 

@@ -9,6 +9,11 @@ function FirebaseAuth() {
         return exec(null, null, 'FirebaseAuthPlugin', 'signIn', []);
     };
 
+    this.signOut = function () {
+
+        return exec(null, null, 'FirebaseAuthPlugin', 'signOut', []);
+    };
+
     function dispatchEvent(event) {
 
         window.dispatchEvent(new CustomEvent(event.type, {detail: event.data}));
