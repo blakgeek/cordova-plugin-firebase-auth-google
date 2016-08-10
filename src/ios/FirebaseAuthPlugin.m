@@ -56,7 +56,30 @@ static void swizzleMethod(Class class, SEL destinationSelector, SEL sourceSelect
 
 - (void)signOut:(CDVInvokedUrlCommand *)command {
 
+    NSDictionary *message = nil;
+    NSError *error;
+
     [[GIDSignIn sharedInstance] signOut];
+    [[FIRAuth auth] signOut:&error];
+
+    if (error == nil) {
+        message = @{
+                @"type" : @"signoutsuccess"
+        };
+    } else {
+
+        message = @{
+                @"type" : @"signoutfailure",
+                @"data" : @{
+                        @"code" : [NSNumber numberWithInteger:error.code],
+                        @"message" : error.description == nil ? [NSNull null] : error.description
+                }
+        };
+    }
+
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
 }
 
 #pragma mark - Helper functions
@@ -79,9 +102,8 @@ static void swizzleMethod(Class class, SEL destinationSelector, SEL sourceSelect
                                   completion:[self handleLogin]];
     } else {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{
-                @"type" : @"signoutfailure",
+                @"type" : @"signinfailure",
                 @"data" : @{
-
                         @"code" : [NSNumber numberWithInteger:error.code],
                         @"message" : error.description
                 }
@@ -111,7 +133,6 @@ static void swizzleMethod(Class class, SEL destinationSelector, SEL sourceSelect
             message = @{
                     @"type" : @"signinfailure",
                     @"data" : @{
-
                             @"code" : [NSNumber numberWithInteger:error.code],
                             @"message" : error.description == nil ? [NSNull null] : error.description
                     }

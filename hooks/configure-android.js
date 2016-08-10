@@ -31,10 +31,12 @@ module.exports = function (context) {
         var oAuthEntries = client.oauth_client;
         var i;
 
-        for (i = 0; i < oAuthEntries.length; i++) {
+        if(oAuthEntries) {
+            for (i = 0; i < oAuthEntries.length; i++) {
 
-            if (oAuthEntries[i].client_type === 3) {
-                return oAuthEntries[i].client_id;
+                if (oAuthEntries[i].client_type === 3) {
+                    return oAuthEntries[i].client_id;
+                }
             }
         }
 
@@ -81,11 +83,13 @@ module.exports = function (context) {
         var client = false;
         var i;
 
-        for (i = 0; i < clients.length; i++) {
+        if(clients) {
+            for (i = 0; i < clients.length; i++) {
 
-            if (clients[i].client_info.android_client_info.package_name === appPackage) {
-                client = clients[i];
-                break;
+                if (clients[i].client_info.android_client_info.package_name === appPackage) {
+                    client = clients[i];
+                    break;
+                }
             }
         }
 
