@@ -33,6 +33,8 @@
         </config-file>
         <header-file src="src/ios/FirebaseAuthPlugin.h" />
         <source-file src="src/ios/FirebaseAuthPlugin.m" />
+        <header-file src="src/ios/AppDelegate+FirebaseAuthPlugin.h" />
+        <source-file src="src/ios/AppDelegate+FirebaseAuthPlugin.m" />
         <pod id="Firebase/Auth" />
         <pod id="GoogleSignIn" />
     </platform>
@@ -45,8 +47,8 @@
         </config-file>
 
         <framework src="src/android/plugin.gradle" custom="true" type="gradleReference" />
-        <framework src="com.google.firebase:firebase-auth:9.2.1" />
-        <framework src="com.google.android.gms:play-services-auth:9.2.1" />
+        <framework src="com.google.firebase:firebase-auth:9+" />
+        <framework src="com.google.android.gms:play-services-auth:9+" />
 
         <source-file src="src/android/com/blakgeek/cordova/plugin/FirebaseAuthPlugin.java"
             target-dir="src/com/blakgeek/cordova/plugin/" />
