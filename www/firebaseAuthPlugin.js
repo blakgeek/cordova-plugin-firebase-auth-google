@@ -1,8 +1,10 @@
 var exec = require('cordova/exec');
 
-function FirebaseAuth() {
+function FirebaseAuth(options) {
 
-    exec(dispatchEvent, null, 'FirebaseAuthPlugin', 'initialize', [])
+    options = options || {};
+    var allowDomains = options.allowDomains ? [].concat(options.allowDomains) : null;
+    exec(dispatchEvent, null, 'FirebaseAuthPlugin', 'initialize', [allowDomains]);
 
     this.signIn = function () {
 

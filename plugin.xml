@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
-    id="cordova-plugin-firebase-auth" version="1.0.5">
+    id="cordova-plugin-firebase-auth-google" version="1.0.5">
     <name>Firebase Authentication</name>
     <description>Adds support for Firebase Authenication to your Cordova/PhoneGap apps.</description>
     <license>Apache 2.0</license>
     <keywords>firebase,cordova,authentication</keywords>
     <author>Carlos "blakgeek" Lawton</author>
-    <repo>https://github.com/blakgeek/cordova-plugin-firebase-auth.git</repo>
-    <issue>https://github.com/blakgeek/cordova-plugin-firebase-auth/issues</issue>
+    <repo>https://github.com/blakgeek/cordova-plugin-firebase-auth-google.git</repo>
+    <issue>https://github.com/blakgeek/cordova-plugin-firebase-auth-google/issues</issue>
 
-    <js-module src="www/plugin.js" name="FirebaseAuthPlugin">
+    <js-module src="www/firebaseAuthPlugin.js" name="FirebaseAuthPlugin">
         <clobbers target="FirebaseAuth" />
     </js-module>
 
@@ -20,10 +20,6 @@
     </engines>
 
     <dependency id="cordova-plugin-cocoapod-support"/>
-
-    <hook type="after_plugin_install" src="hooks/configure-plugin.js"/>
-    <hook type="after_prepare" src="hooks/configure-ios.js"/>
-    <hook type="after_prepare" src="hooks/configure-android.js"/>
 
     <platform name="ios">
         <config-file target="config.xml" parent="/*">

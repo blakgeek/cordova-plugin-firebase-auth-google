@@ -1,18 +1,15 @@
 #import "FirebaseAuthPlugin.h"
-#import "AppDelegate.h"
-#import "objc/runtime.h"
 @import Firebase;
 
 @implementation FirebaseAuthPlugin
 
 - (void)initialize:(CDVInvokedUrlCommand *)command {
-    
-    if(![FIRApp defaultApp]) {
-        [FIRApp configure];
-    }
+
     [GIDSignIn sharedInstance].clientID = [FIRApp defaultApp].options.clientID;
     [GIDSignIn sharedInstance].uiDelegate = self.viewController;
     [GIDSignIn sharedInstance].delegate = self;
+    self.allowedDomains = [command argumentAtIndex:0];
+
 
     self.eventCallbackId = command.callbackId;
 }
@@ -32,15 +29,15 @@
 
     if (error == nil) {
         message = @{
-                @"type" : @"signoutsuccess"
+                @"type": @"signoutsuccess"
         };
     } else {
 
         message = @{
-                @"type" : @"signoutfailure",
-                @"data" : @{
-                        @"code" : [NSNumber numberWithInteger:error.code],
-                        @"message" : error.description == nil ? [NSNull null] : error.description
+                @"type": @"signoutfailure",
+                @"data": @{
+                        @"code": [NSNumber numberWithInteger:error.code],
+                        @"message": error.description == nil ? [NSNull null] : error.description
                 }
         };
     }
@@ -63,18 +60,31 @@
 
     NSDictionary *message = nil;
     if (error == nil) {
-        GIDAuthentication *authentication = user.authentication;
-        FIRAuthCredential *credential = [FIRGoogleAuthProvider credentialWithIDToken:authentication.idToken
-                                                                         accessToken:authentication.accessToken];
-        [[FIRAuth auth] signInWithCredential:credential
-                                  completion:[self handleLogin]];
+        if([self.allowedDomains indexOfObject: user.hostedDomain] == NSNotFound) {
+
+            [[GIDSignIn sharedInstance] signOut];
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{
+                    @"type": @"signinfailure",
+                    @"data": @{
+                            @"code": @"domain_not_allowed",
+                            @"message": @"the domain is not allowed"
+                    }
+            }];
+            [pluginResult setKeepCallbackAsBool:YES];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
+        } else {
+            GIDAuthentication *authentication = user.authentication;
+            FIRAuthCredential *credential = [FIRGoogleAuthProvider credentialWithIDToken:authentication.idToken
+                                                                             accessToken:authentication.accessToken];
+            [[FIRAuth auth] signInWithCredential:credential
+                                      completion:[self handleLogin]];
+        }
     } else {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{
-                @"type" : @"signinfailure",
-                @"data" : @{
-
-                        @"code" : [NSNumber numberWithInteger:error.code],
-                        @"message" : error.description
+                @"type": @"signinfailure",
+                @"data": @{
+                        @"code": @(error.code),
+                        @"message": error.description
                 }
         }];
         [pluginResult setKeepCallbackAsBool:YES];
@@ -86,31 +96,57 @@
 - (void (^)(FIRUser *, NSError *))handleLogin {
     return ^(FIRUser *user, NSError *error) {
 
-        NSDictionary *message;
         if (error == nil) {
-
-            message = @{
-                    @"type" : @"signinsuccess",
-                    @"data" : @{
-                            @"id" : user.uid == nil ? [NSNull null] : user.uid,
-                            @"name" : user.displayName == nil ? [NSNull null] : user.displayName,
-                            @"email" : user.email == nil ? [NSNull null] : user.email,
-                            @"photoUrl" : user.photoURL == nil ? [NSNull null] : [user.photoURL absoluteString]
-                    }
-            };
+            FIRUser *currentUser = [FIRAuth auth].currentUser;
+            [currentUser getTokenForcingRefresh:YES
+                                     completion:^(NSString *_Nullable idToken,
+                                                  NSError *_Nullable error) {
+                                         
+                                         NSDictionary *message;
+                                         
+                                         if (error) {
+                                             message = @{
+                                                         @"type": @"signinfailure",
+                                                         @"data": @{
+                                                                 @"code": [NSNumber numberWithInteger:error.code],
+                                                                 @"message": error.description == nil ? [NSNull null] : error.description
+                                                                 }
+                                                         };
+                                         } else {
+                                        
+                                            message = @{
+                                                         @"type": @"signinsuccess",
+                                                         @"data": @{
+                                                                 @"token": idToken,
+                                                                 @"id": user.uid == nil ? [NSNull null] : user.uid,
+                                                                 @"name": user.displayName == nil ? [NSNull null] : user.displayName,
+                                                                 @"email": user.email == nil ? [NSNull null] : user.email,
+                                                                 @"photoUrl": user.photoURL == nil ? [NSNull null] : [user.photoURL absoluteString]
+                                                                 }
+                                                         };
+                                             
+                                             
+                                             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
+                                             [pluginResult setKeepCallbackAsBool:YES];
+                                             [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
+                                         }
+                                         
+                                         // Send token to your backend via HTTPS
+                                         // ...
+                                     }];
         } else {
-            message = @{
-                    @"type" : @"signinfailure",
-                    @"data" : @{
-                            @"code" : [NSNumber numberWithInteger:error.code],
-                            @"message" : error.description == nil ? [NSNull null] : error.description
+            NSDictionary *message = @{
+                    @"type": @"signinfailure",
+                    @"data": @{
+                            @"code": [NSNumber numberWithInteger:error.code],
+                            @"message": error.description == nil ? [NSNull null] : error.description
                     }
             };
+            
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
+            [pluginResult setKeepCallbackAsBool:YES];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
         }
-
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
-        [pluginResult setKeepCallbackAsBool:YES];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
     };
 }
 
@@ -120,15 +156,15 @@
     if (error == nil) {
         GIDProfileData *profile = user.profile;
         message = @{
-                @"type" : @"signoutsuccess"
+                @"type": @"signoutsuccess"
         };
     } else {
         message = @{
-                @"type" : @"signoutfailure",
-                @"data" : @{
+                @"type": @"signoutfailure",
+                @"data": @{
 
-                        @"code" : [NSNumber numberWithInteger:error.code],
-                        @"message" : error.description == nil ? [NSNull null] : error.description
+                        @"code": [NSNumber numberWithInteger:error.code],
+                        @"message": error.description == nil ? [NSNull null] : error.description
                 }
         };
     }

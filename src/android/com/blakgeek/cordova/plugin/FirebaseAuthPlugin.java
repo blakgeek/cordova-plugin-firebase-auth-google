@@ -1,6 +1,5 @@
 package com.blakgeek.cordova.plugin;
 
-// IMPORT_R
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -19,19 +18,26 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FirebaseAuthPlugin extends CordovaPlugin implements OnCompleteListener<AuthResult>, FirebaseAuth.AuthStateListener {
 
     private static final int RC_SIGN_IN = 9001;
     private GoogleApiClient googleApiClient;
     private CallbackContext eventContext;
     private FirebaseAuth firebaseAuth;
+    private List<String> allowedDomains = new ArrayList<>();
+    private String currentToken;
 
     @Override
     protected void pluginInitialize() {
 
+
         Context context = this.cordova.getActivity().getApplicationContext();
+        String defaultClientId = getDefaultClientId(context);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(context.getString(R.string.default_web_client_id))
+                .requestIdToken(defaultClientId)
                 .requestEmail()
                 .requestProfile()
                 .build();
@@ -42,6 +48,13 @@ public class FirebaseAuthPlugin extends CordovaPlugin implements OnCompleteListe
         googleApiClient.connect();
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.addAuthStateListener(this);
+    }
+
+    private String getDefaultClientId(Context context) {
+
+        String packageName = context.getPackageName();
+        int id = context.getResources().getIdentifier("default_web_client_id", "string", packageName);
+        return context.getString(id);
     }
 
     @Override
@@ -71,7 +84,17 @@ public class FirebaseAuthPlugin extends CordovaPlugin implements OnCompleteListe
         return true;
     }
 
-    private boolean initialize(JSONArray args, CallbackContext callbackContext) {
+    private boolean  initialize(JSONArray args, CallbackContext callbackContext) {
+
+        JSONArray allowedDomains = args.optJSONArray(0);
+        this.allowedDomains = new ArrayList<>();
+
+        if(allowedDomains != null) {
+            for (int i=0; i < allowedDomains.length(); i++) {
+                this.allowedDomains.add(allowedDomains.optString(i));
+            }
+        }
+
         if (eventContext == null) {
             eventContext = callbackContext;
         }
@@ -101,8 +124,23 @@ public class FirebaseAuthPlugin extends CordovaPlugin implements OnCompleteListe
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
 
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(this);
+        String email = acct.getEmail();
+        String domain = email.substring(email.indexOf('@') + 1);
+        if(allowedDomains.size() == 0 || allowedDomains.contains(domain)) {
+            AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+            firebaseAuth.signInWithCredential(credential).addOnCompleteListener(this);
+        } else {
+            if(googleApiClient.isConnected()) {
+                Auth.GoogleSignInApi.signOut(googleApiClient);
+            }
+            JSONObject error = new JSONObject();
+            try {
+                error.put("code", "domain_not_allowed");
+                error.put("message", "the domain is not allowed");
+            } catch (JSONException e) {
+            }
+            raiseEvent("signinfailure", error);
+        }
     }
 
     @Override
@@ -158,21 +196,34 @@ public class FirebaseAuthPlugin extends CordovaPlugin implements OnCompleteListe
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 
-        FirebaseUser user = firebaseAuth.getCurrentUser();
+        final FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
-            JSONObject data = new JSONObject();
-            try {
-                data.put("name", user.getDisplayName());
-                data.put("email", user.getEmail());
-                data.put("id", user.getUid());
-                if (user.getPhotoUrl() != null) {
-                    data.put("photoUrl", user.getPhotoUrl().toString());
+            user.getToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                @Override
+                public void onComplete(@NonNull Task<GetTokenResult> task) {
+
+                    final JSONObject data = new JSONObject();
+                    String token = task.getResult().getToken();
+
+                    if(token != null && !token.equals(currentToken)) {
+                        currentToken = token;
+                        try {
+                            data.put("token", token);
+                            data.put("name", user.getDisplayName());
+                            data.put("email", user.getEmail());
+                            data.put("id", user.getUid());
+                            if (user.getPhotoUrl() != null) {
+                                data.put("photoUrl", user.getPhotoUrl().toString());
+                            }
+                        } catch (JSONException e) {
+                        }
+                        raiseEvent("signinsuccess", data);
+                    }
                 }
-            } catch (JSONException e) {
-            }
-            raiseEvent("signinsuccess", data);
-        } else {
+            });
+        } else if(currentToken != null){
             raiseEvent("signoutsuccess");
+            currentToken = null;
         }
     }
 }
