@@ -43,8 +43,8 @@
         </config-file>
 
         <framework src="src/android/plugin.gradle" custom="true" type="gradleReference" />
-        <framework src="com.google.firebase:firebase-auth:9+" />
-        <framework src="com.google.android.gms:play-services-auth:9+" />
+        <framework src="com.google.firebase:firebase-auth:9.4+" />
+        <framework src="com.google.android.gms:play-services-auth:9.4+" />
 
         <source-file src="src/android/com/blakgeek/cordova/plugin/FirebaseAuthPlugin.java"
             target-dir="src/com/blakgeek/cordova/plugin/" />
