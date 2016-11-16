@@ -7,6 +7,7 @@
 - (void)initialize:(CDVInvokedUrlCommand *)command;
 - (void)signIn:(CDVInvokedUrlCommand *)command;
 - (void)signOut:(CDVInvokedUrlCommand *)command;
+- (void)getToken:(CDVInvokedUrlCommand *)command;
 @property (nonatomic) NSString *eventCallbackId;
 @property (strong, nonatomic) NSArray *allowedDomains;
 @end

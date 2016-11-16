@@ -6,6 +6,18 @@ function FirebaseAuth(options) {
     var allowDomains = options.allowDomains ? [].concat(options.allowDomains) : null;
     exec(dispatchEvent, null, 'FirebaseAuthPlugin', 'initialize', [allowDomains]);
 
+    this.getToken = function(success, failure) {
+
+        if(window.Promise) {
+            return new Promise(function (resolve, reject) {
+
+                exec(resolve, reject, 'FirebaseAuthPlugin', 'getToken', []);
+            });
+        } else {
+            return exec(success, failure, 'FirebaseAuthPlugin', 'getToken', []);
+        }
+    };
+
     this.signIn = function () {
 
         return exec(null, null, 'FirebaseAuthPlugin', 'signIn', []);

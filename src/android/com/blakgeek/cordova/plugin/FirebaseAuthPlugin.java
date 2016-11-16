@@ -62,6 +62,8 @@ public class FirebaseAuthPlugin extends CordovaPlugin implements OnCompleteListe
         switch (action) {
             case "initialize":
                 return initialize(args, callbackContext);
+            case "getToken":
+                return getToken(callbackContext);
             case "signIn":
                 return signIn();
             case "signOut":
@@ -69,6 +71,25 @@ public class FirebaseAuthPlugin extends CordovaPlugin implements OnCompleteListe
             default:
                 return false;
         }
+    }
+
+
+    private boolean getToken(final CallbackContext callbackContext) {
+
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+
+        if (user != null) {
+            user.getToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                @Override
+                public void onComplete(@NonNull Task<GetTokenResult> task) {
+
+                    callbackContext.success(task.getResult().getToken());
+                }
+            });
+        } else if (currentToken != null) {
+            callbackContext.error("no_user_found");
+        }
+        return true;
     }
 
     private boolean signOut() {

@@ -14,6 +14,40 @@
     self.eventCallbackId = command.callbackId;
 }
 
+
+- (void)getToken:(CDVInvokedUrlCommand *)command {
+
+    FIRUser *currentUser = [FIRAuth auth].currentUser;
+    [currentUser getTokenForcingRefresh:YES
+                             completion:^(NSString *_Nullable idToken,
+                                          NSError *_Nullable error) {
+
+                                 NSDictionary *message;
+
+                                 if (error) {
+                                     message = @{
+                                                 @"type": @"signinfailure",
+                                                 @"data": @{
+                                                         @"code": [NSNumber numberWithInteger:error.code],
+                                                         @"message": error.description == nil ? [NSNull null] : error.description
+                                                         }
+                                                 };
+                                     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                                                                   messageAsDictionary:@{
+                                                                                                         @"code": [NSNumber numberWithInteger:error.code],
+                                                                                                         @"message": error.description == nil ? [NSNull null] : error.description
+                                                                                                         }];
+                                     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+                                 } else {
+
+                                     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:idToken];
+                                     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                                 }
+                             }];
+
+}
+
 - (void)signIn:(CDVInvokedUrlCommand *)command {
 
     [[GIDSignIn sharedInstance] signIn];
