@@ -191,7 +191,7 @@ public class FirebaseAuthPlugin extends CordovaPlugin implements OnCompleteListe
                 JSONObject data = new JSONObject();
                 try {
                     data.put("code", result.getStatus().getStatusCode());
-                    data.put("message", result.getStatus().getStatusMessage());
+                    data.put("message", result.getStatus().toString());
                 } catch (JSONException e) {
                 }
                 raiseEvent("signinfailure", data);
@@ -224,21 +224,34 @@ public class FirebaseAuthPlugin extends CordovaPlugin implements OnCompleteListe
                 public void onComplete(@NonNull Task<GetTokenResult> task) {
 
                     final JSONObject data = new JSONObject();
-                    String token = task.getResult().getToken();
 
-                    if(token != null && !token.equals(currentToken)) {
-                        currentToken = token;
-                        try {
-                            data.put("token", token);
-                            data.put("name", user.getDisplayName());
-                            data.put("email", user.getEmail());
-                            data.put("id", user.getUid());
-                            if (user.getPhotoUrl() != null) {
-                                data.put("photoUrl", user.getPhotoUrl().toString());
+                    if(task.isSuccessful()) {
+
+                        String token = task.getResult().getToken();
+
+                        if (token != null && !token.equals(currentToken)) {
+                            currentToken = token;
+                            try {
+                                data.put("token", token);
+                                data.put("name", user.getDisplayName());
+                                data.put("email", user.getEmail());
+                                data.put("id", user.getUid());
+                                if (user.getPhotoUrl() != null) {
+                                    data.put("photoUrl", user.getPhotoUrl().toString());
+                                }
+                            } catch (JSONException e) {
                             }
+                            raiseEvent("signinsuccess", data);
+                        }
+                    } else {
+
+                        Exception err = task.getException();
+                        try {
+                            data.put("code", "UH_OH");
+                            data.put("message", err.getMessage());
                         } catch (JSONException e) {
                         }
-                        raiseEvent("signinsuccess", data);
+                        raiseEvent("signinfailure", data);
                     }
                 }
             });
