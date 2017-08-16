@@ -1,7 +1,7 @@
-#import "FirebaseAuthPlugin.h"
+#import "FirebaseAuthGooglePlugin.h"
 @import Firebase;
 
-@implementation FirebaseAuthPlugin
+@implementation FirebaseAuthGooglePlugin
 
 - (void)initialize:(CDVInvokedUrlCommand *)command {
 
@@ -132,8 +132,7 @@
 
         if (error == nil) {
             FIRUser *currentUser = [FIRAuth auth].currentUser;
-            [currentUser getTokenForcingRefresh:YES
-                                     completion:^(NSString *_Nullable idToken,
+            [currentUser withCompletion:^(NSString *_Nullable idToken,
                                                   NSError *_Nullable error) {
                                          
                                          NSDictionary *message;
@@ -158,15 +157,12 @@
                                                                  @"photoUrl": user.photoURL == nil ? [NSNull null] : [user.photoURL absoluteString]
                                                                  }
                                                          };
-                                             
-                                             
-                                             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
-                                             [pluginResult setKeepCallbackAsBool:YES];
-                                             [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
                                          }
-                                         
-                                         // Send token to your backend via HTTPS
-                                         // ...
+                                             
+                                         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
+                                         [pluginResult setKeepCallbackAsBool:YES];
+                                         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
+
                                      }];
         } else {
             NSDictionary *message = @{

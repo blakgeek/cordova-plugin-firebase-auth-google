@@ -2,7 +2,7 @@
 #import <Cordova/CDV.h>
 #import <GoogleSignIn/GoogleSignIn.h>
 
-@interface FirebaseAuthPlugin : CDVPlugin <GIDSignInDelegate, GIDSignInUIDelegate>
+@interface FirebaseAuthGooglePlugin : CDVPlugin <GIDSignInDelegate, GIDSignInUIDelegate>
 
 - (void)initialize:(CDVInvokedUrlCommand *)command;
 - (void)signIn:(CDVInvokedUrlCommand *)command;

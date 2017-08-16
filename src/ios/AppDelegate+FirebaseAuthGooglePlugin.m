@@ -1,10 +1,10 @@
-#import "AppDelegate+FirebaseAuthPlugin.h"
+#import "AppDelegate+FirebaseAuthGooglePlugin.h"
 #import <objc/runtime.h>
 #import <GoogleSignIn/GoogleSignIn.h>
 
 static void swizzleMethod(Class class, SEL destinationSelector, SEL sourceSelector);
 
-@implementation AppDelegate (FirebaseAuthPlugin)
+@implementation AppDelegate (FirebaseAuthGooglePlugin)
 
 + (void)load {
 
