@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
-    id="cordova-plugin-firebase-auth-google" version="1.0.5">
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-plugin-firebase-auth-google" version="1.0.7">
     <name>Firebase Authentication</name>
     <description>Adds support for Firebase Authenication to your Cordova/PhoneGap apps.</description>
     <license>Apache 2.0</license>
@@ -10,13 +9,13 @@
     <issue>https://github.com/blakgeek/cordova-plugin-firebase-auth-google/issues</issue>
 
     <js-module src="www/firebaseAuthGooglePlugin.js" name="FirebaseAuthGooglePlugin">
-        <clobbers target="FirebaseAuthGoogle" />
+        <clobbers target="FirebaseAuthGoogle"/>
     </js-module>
 
     <engines>
-        <engine name="cordova" version=">=6.0.0" />
-        <engine name="cordova-android" version=">=4.0.0" />
-        <engine name="cordova-plugman" version=">=4.2.0" />
+        <engine name="cordova" version="&gt;=6.0.0"/>
+        <engine name="cordova-android" version="&gt;=4.0.0"/>
+        <engine name="cordova-plugman" version="&gt;=4.2.0"/>
     </engines>
 
     <dependency id="cordova-plugin-cocoapod-support"/>
@@ -27,36 +26,34 @@
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
             <feature name="FirebaseAuthGooglePlugin">
-                <param name="ios-package" value="FirebaseAuthGooglePlugin" />
+                <param name="ios-package" value="FirebaseAuthGooglePlugin"/>
             </feature>
         </config-file>
-        <header-file src="src/ios/FirebaseAuthGooglePlugin.h" />
-        <source-file src="src/ios/FirebaseAuthGooglePlugin.m" />
-        <header-file src="src/ios/AppDelegate+FirebaseAuthGooglePlugin.h" />
-        <source-file src="src/ios/AppDelegate+FirebaseAuthGooglePlugin.m" />
-        <pod id="Firebase/Auth" />
-        <pod id="GoogleSignIn" />
+        <header-file src="src/ios/FirebaseAuthGooglePlugin.h"/>
+        <source-file src="src/ios/FirebaseAuthGooglePlugin.m"/>
+        <header-file src="src/ios/AppDelegate+FirebaseAuthGooglePlugin.h"/>
+        <source-file src="src/ios/AppDelegate+FirebaseAuthGooglePlugin.m"/>
+        <pod id="Firebase/Auth"/>
+        <pod id="GoogleSignIn"/>
     </platform>
 
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="FirebaseAuthGooglePlugin">
-                <param name="android-package" value="com.blakgeek.cordova.plugin.FirebaseAuthGooglePlugin" />
+                <param name="android-package" value="com.blakgeek.cordova.plugin.FirebaseAuthGooglePlugin"/>
             </feature>
         </config-file>
 
-        <framework src="src/android/plugin.gradle" custom="true" type="gradleReference" />
-        <framework src="com.google.firebase:firebase-auth:+" />
-        <framework src="com.google.android.gms:play-services-auth:+" />
+        <framework src="src/android/plugin.gradle" custom="true" type="gradleReference"/>
+        <framework src="com.google.firebase:firebase-auth:+"/>
+        <framework src="com.google.android.gms:play-services-auth:+"/>
 
-        <source-file src="src/android/com/blakgeek/cordova/plugin/FirebaseAuthGooglePlugin.java"
-            target-dir="src/com/blakgeek/cordova/plugin/" />
+        <source-file src="src/android/com/blakgeek/cordova/plugin/FirebaseAuthGooglePlugin.java" target-dir="src/com/blakgeek/cordova/plugin/"/>
         <config-file target="AndroidManifest.xml" parent="/*/application">
-            <meta-data android:name="com.google.android.gms.version"
-                android:value="@integer/google_play_services_version" />
+            <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/*">
-            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.INTERNET"/>
         </config-file>
     </platform>
 </plugin>
