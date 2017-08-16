@@ -27,10 +27,10 @@
     "xcode": "^0.8.9",
     "xml2js": "^0.4.17"
   },
-  "bundledDependencies": [
-    "plist",
-    "shelljs",
-    "xcode",
-    "xml2js"
-  ]
+  "scripts": {
+    "postversion": "node scripts/sync-plugin-version.js; git add plugin.xml; git commit plugin.xml -m \"v${npm_package_version}\""
+  },
+  "devDependencies": {
+    "libxmljs": "^0.18.4"
+  }
 }
