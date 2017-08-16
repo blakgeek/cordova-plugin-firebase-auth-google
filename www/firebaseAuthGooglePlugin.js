@@ -1,31 +1,32 @@
 var exec = require('cordova/exec');
+const PLUGIN_NAME = 'FirebaseAuthGooglePlugin';
 
 function FirebaseAuth(options) {
 
     options = options || {};
     var allowDomains = options.allowDomains ? [].concat(options.allowDomains) : null;
-    exec(dispatchEvent, null, 'FirebaseAuthPlugin', 'initialize', [allowDomains]);
+    exec(dispatchEvent, null, PLUGIN_NAME, 'initialize', [allowDomains]);
 
     this.getToken = function(success, failure) {
 
         if(window.Promise) {
             return new Promise(function (resolve, reject) {
 
-                exec(resolve, reject, 'FirebaseAuthPlugin', 'getToken', []);
+                exec(resolve, reject, PLUGIN_NAME, 'getToken', []);
             });
         } else {
-            return exec(success, failure, 'FirebaseAuthPlugin', 'getToken', []);
+            return exec(success, failure, PLUGIN_NAME, 'getToken', []);
         }
     };
 
     this.signIn = function () {
 
-        return exec(null, null, 'FirebaseAuthPlugin', 'signIn', []);
+        return exec(null, null, PLUGIN_NAME, 'signIn', []);
     };
 
     this.signOut = function () {
 
-        return exec(null, null, 'FirebaseAuthPlugin', 'signOut', []);
+        return exec(null, null, PLUGIN_NAME, 'signOut', []);
     };
 
     function dispatchEvent(event) {

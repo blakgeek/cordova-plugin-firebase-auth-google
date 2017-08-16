@@ -9,6 +9,8 @@
     <issue>https://github.com/blakgeek/cordova-plugin-firebase-auth-google/issues</issue>
 
     <js-module src="www/firebaseAuthGooglePlugin.js" name="FirebaseAuthGooglePlugin">
+        <!-- todo: remove this clobber it's only here for backward compatibility -->
+        <clobbers target="FirebaseAuth" />
         <clobbers target="FirebaseAuthGoogle"/>
     </js-module>
 
