@@ -157,7 +157,8 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
             JSONObject error = new JSONObject();
             try {
                 error.put("code", "domain_not_allowed");
-                error.put("message", "the domain is not allowed");
+                error.put("message", "the domain [" + domain + "] is not allowed");
+                error.put("domain", domain);
             } catch (JSONException e) {
             }
             raiseEvent("signinfailure", error);
@@ -206,7 +207,7 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
             Exception err = task.getException();
             JSONObject data = new JSONObject();
             try {
-                data.put("code", "UH_OH");
+                data.put("code", err.getClass().getSimpleName());
                 data.put("message", err.getMessage());
             } catch (JSONException e) {
             }
@@ -247,7 +248,7 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
 
                         Exception err = task.getException();
                         try {
-                            data.put("code", "UH_OH");
+                            data.put("code", err.getClass().getSimpleName());
                             data.put("message", err.getMessage());
                         } catch (JSONException e) {
                         }
