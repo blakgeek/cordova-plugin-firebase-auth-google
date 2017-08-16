@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-plugin-firebase-auth-google" version="1.0.7">
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-plugin-firebase-auth-google" version="1.0.8">
     <name>Firebase Authentication</name>
     <description>Adds support for Firebase Authenication to your Cordova/PhoneGap apps.</description>
     <license>Apache 2.0</license>
@@ -10,7 +10,7 @@
 
     <js-module src="www/firebaseAuthGooglePlugin.js" name="FirebaseAuthGooglePlugin">
         <!-- todo: remove this clobber it's only here for backward compatibility -->
-        <clobbers target="FirebaseAuth" />
+        <clobbers target="FirebaseAuth"/>
         <clobbers target="FirebaseAuthGoogle"/>
     </js-module>
 
