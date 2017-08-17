@@ -7,7 +7,9 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.*;
@@ -65,7 +67,7 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
             case "getToken":
                 return getToken(callbackContext);
             case "signIn":
-                return signIn();
+                return signIn(args.getBoolean(0));
             case "signOut":
                 return signOut();
             default:
@@ -98,10 +100,14 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
         return true;
     }
 
-    private boolean signIn() {
+    private boolean signIn(boolean silent) {
 
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
-        this.cordova.startActivityForResult(this, signInIntent, RC_SIGN_IN);
+        if(silent) {
+            Auth.GoogleSignInApi.silentSignIn(googleApiClient);
+        } else {
+            Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+            this.cordova.startActivityForResult(this, signInIntent, RC_SIGN_IN);
+        }
         return true;
     }
 
@@ -191,7 +197,9 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
             } else {
                 JSONObject data = new JSONObject();
                 try {
-                    data.put("code", result.getStatus().getStatusCode());
+                    Status status = result.getStatus();
+                    String code = CommonStatusCodes.getStatusCodeString(status.getStatusCode());
+                    data.put("code", code);
                     data.put("message", result.getStatus().toString());
                 } catch (JSONException e) {
                 }

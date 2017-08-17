@@ -50,7 +50,12 @@
 
 - (void)signIn:(CDVInvokedUrlCommand *)command {
 
-    [[GIDSignIn sharedInstance] signIn];
+    BOOL silent = [command.arguments[0] boolValue];
+    if(silent == YES) {
+        [[GIDSignIn sharedInstance] signInSilently];
+    } else {
+        [[GIDSignIn sharedInstance] signIn];
+    }
 }
 
 - (void)signOut:(CDVInvokedUrlCommand *)command {
@@ -101,6 +106,7 @@
                     @"type": @"signinfailure",
                     @"data": @{
                             @"code": @"domain_not_allowed",
+                            @"domain": user.hostedDomain ? user.hostedDomain : @"gmail.com",
                             @"message": @"the domain is not allowed"
                     }
             }];
@@ -132,11 +138,11 @@
 
         if (error == nil) {
             FIRUser *currentUser = [FIRAuth auth].currentUser;
-            [currentUser withCompletion:^(NSString *_Nullable idToken,
+            [currentUser getTokenWithCompletion:^(NSString *_Nullable idToken,
                                                   NSError *_Nullable error) {
-                                         
+
                                          NSDictionary *message;
-                                         
+
                                          if (error) {
                                              message = @{
                                                          @"type": @"signinfailure",
@@ -146,7 +152,7 @@
                                                                  }
                                                          };
                                          } else {
-                                        
+
                                             message = @{
                                                          @"type": @"signinsuccess",
                                                          @"data": @{
@@ -158,7 +164,7 @@
                                                                  }
                                                          };
                                          }
-                                             
+
                                          CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
                                          [pluginResult setKeepCallbackAsBool:YES];
                                          [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
@@ -172,7 +178,7 @@
                             @"message": error.description == nil ? [NSNull null] : error.description
                     }
             };
-            
+
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
             [pluginResult setKeepCallbackAsBool:YES];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:self.eventCallbackId];
@@ -194,7 +200,7 @@
                 @"data": @{
 
                         @"code": [NSNumber numberWithInteger:error.code],
-                        @"message": error.description == nil ? [NSNull null] : error.description
+                        @"message": error.description ? error.description : [NSNull null]
                 }
         };
     }

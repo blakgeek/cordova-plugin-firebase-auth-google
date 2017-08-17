@@ -19,9 +19,9 @@ function FirebaseAuth(options) {
         }
     };
 
-    this.signIn = function () {
+    this.signIn = function (silent) {
 
-        return exec(null, null, PLUGIN_NAME, 'signIn', []);
+        return exec(null, null, PLUGIN_NAME, 'signIn', [silent === true]);
     };
 
     this.signOut = function () {
