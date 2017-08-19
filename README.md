@@ -32,7 +32,8 @@ const fbAuth = new FirebaseAuth({
 window.addEventListener('signinsuccess', function (event) {
 
     console.log('Wassup?');
-    // the detail property of the event will contain the information about the user ("token", "id", "name", "email", "id",  "photoUrl")
+    // the detail property of the event will contain the information about the user 
+    // ("token", "id", "name", "email", "id",  "photoUrl")
     console.dir(event.detail);
 }, false);
 
@@ -40,11 +41,17 @@ window.addEventListener('signinsuccess', function (event) {
 window.addEventListener('signinfailure', function (event) {
 
     console.error('Oh snap');
-    // the detail property will contain the error details (code, message and optionally the domain if the sign failed
-    // because domain was not in the allowDomain list)
+    // the detail property will contain the error details 
+    // (code, message and optionally the domain)
+    // domain is included if the domain of user's email was not in the allowDomain list
     console.error(event.detail)
 }, false);
+
+// sign in by showing a UI
 fbAuth.signIn();
+
+// attempt to sign in without a UI (silently)
+fbAuth.signIn(true); 
 ```
 
 ## How do I sign out?
