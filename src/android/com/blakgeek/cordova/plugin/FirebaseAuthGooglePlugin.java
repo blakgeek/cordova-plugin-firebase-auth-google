@@ -198,7 +198,7 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
                 JSONObject data = new JSONObject();
                 try {
                     Status status = result.getStatus();
-                    String code = CommonStatusCodes.getStatusCodeString(status.getStatusCode());
+                    Object code = translateStatusCode(status.getStatusCode());
                     data.put("code", code);
                     data.put("message", result.getStatus().toString());
                 } catch (JSONException e) {
@@ -267,6 +267,49 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
         } else if(currentToken != null){
             raiseEvent("signoutsuccess");
             currentToken = null;
+        }
+    }
+
+    private Object translateStatusCode(int statusCode) {
+        switch(statusCode) {
+            case -1:
+                return "SUCCESS_CACHE";
+            case 0:
+                return "SUCCESS";
+            case 2:
+                return "SERVICE_VERSION_UPDATE_REQUIRED";
+            case 3:
+                return "SERVICE_DISABLED";
+            case 4:
+                return "SIGN_IN_REQUIRED";
+            case 5:
+                return "INVALID_ACCOUNT";
+            case 6:
+                return "RESOLUTION_REQUIRED";
+            case 7:
+                return "NETWORK_ERROR";
+            case 8:
+                return "INTERNAL_ERROR";
+            case 10:
+                return "DEVELOPER_ERROR";
+            case 13:
+                return "ERROR";
+            case 14:
+                return "INTERRUPTED";
+            case 15:
+                return "TIMEOUT";
+            case 16:
+                return "CANCELED";
+            case 17:
+                return "API_NOT_CONNECTED";
+            case 18:
+                return "DEAD_CLIENT";
+            case 12500:
+                return "SIGN_IN_FAILED";
+            case 12501:
+                return "SIGN_IN_CANCELLED";
+            default:
+                return statusCode;
         }
     }
 }
