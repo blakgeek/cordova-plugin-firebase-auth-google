@@ -39,7 +39,7 @@
 
     <platform name="android">
 
-        <preference name="FIREBASE_VERSION" default="18.+"/>
+        <preference name="FIREBASE_VERSION" default="16.+"/>
         <preference name="PLAY_SERVICES_VERSION" default="15.+"/>
 
         <config-file target="res/xml/config.xml" parent="/*">
