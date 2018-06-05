@@ -15,15 +15,13 @@
     </js-module>
 
     <engines>
-        <engine name="cordova" version="&gt;=6.0.0"/>
+        <engine name="cordova" version="&gt;=7.0.0"/>
         <engine name="cordova-android" version="&gt;=4.0.0"/>
         <engine name="cordova-plugman" version="&gt;=4.2.0"/>
     </engines>
 
     <dependency id="cordova-plugin-cocoapod-support"/>
     <dependency id="cordova-plugin-firebase-core"/>
-
-    <hook type="before_plugin_install" src="scripts/npm-install.js"/>
 
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
@@ -51,9 +49,7 @@
         <framework src="com.google.android.gms:play-services-auth:+"/>
 
         <source-file src="src/android/com/blakgeek/cordova/plugin/FirebaseAuthGooglePlugin.java" target-dir="src/com/blakgeek/cordova/plugin/"/>
-        <config-file target="AndroidManifest.xml" parent="/*/application">
-            <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
-        </config-file>
+
         <config-file target="AndroidManifest.xml" parent="/*">
             <uses-permission android:name="android.permission.INTERNET"/>
         </config-file>
