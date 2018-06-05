@@ -81,7 +81,7 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
         FirebaseUser user = firebaseAuth.getCurrentUser();
 
         if (user != null) {
-            user.getToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            user.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                 @Override
                 public void onComplete(@NonNull Task<GetTokenResult> task) {
 
@@ -228,7 +228,7 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
 
         final FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
-            user.getToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            user.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                 @Override
                 public void onComplete(@NonNull Task<GetTokenResult> task) {
 

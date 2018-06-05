@@ -38,6 +38,10 @@
     </platform>
 
     <platform name="android">
+
+        <preference name="FIREBASE_VERSION" default="18.+"/>
+        <preference name="PLAY_SERVICES_VERSION" default="15.+"/>
+
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="FirebaseAuthGooglePlugin">
                 <param name="android-package" value="com.blakgeek.cordova.plugin.FirebaseAuthGooglePlugin"/>
@@ -45,8 +49,8 @@
         </config-file>
 
         <framework src="src/android/plugin.gradle" custom="true" type="gradleReference"/>
-        <framework src="com.google.firebase:firebase-auth:+"/>
-        <framework src="com.google.android.gms:play-services-auth:+"/>
+        <framework src="com.google.firebase:firebase-auth:$FIREBASE_VERSION"/>
+        <framework src="com.google.android.gms:play-services-auth:$PLAY_SERVICES_VERSION"/>
 
         <source-file src="src/android/com/blakgeek/cordova/plugin/FirebaseAuthGooglePlugin.java" target-dir="src/com/blakgeek/cordova/plugin/"/>
 
