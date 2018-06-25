@@ -7,8 +7,13 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -23,7 +28,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnCompleteListener<AuthResult>, FirebaseAuth.AuthStateListener {
+public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnCompleteListener<AuthResult>, FirebaseAuth.AuthStateListener, ResultCallback<GoogleSignInResult> {
 
     private static final int RC_SIGN_IN = 9001;
     private GoogleApiClient googleApiClient;
@@ -43,6 +48,11 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
                 .requestEmail()
                 .requestProfile()
                 .build();
+
+        int googlePlayAvailabilityStatus = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable( context);
+        if(googlePlayAvailabilityStatus == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
+            raiseEvent("googlePlayServiceUpdateRequired");
+        }
 
         googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
@@ -103,7 +113,12 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
     private boolean signIn(boolean silent) {
 
         if(silent) {
-            Auth.GoogleSignInApi.silentSignIn(googleApiClient);
+            OptionalPendingResult<GoogleSignInResult> result = Auth.GoogleSignInApi.silentSignIn(googleApiClient);
+            if(result.isDone()) {
+                handleSignInResult(result.get());
+            } else {
+                result.setResultCallback(this);
+            }
         } else {
             Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
             this.cordova.startActivityForResult(this, signInIntent, RC_SIGN_IN);
@@ -191,20 +206,24 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(intent);
-            if (result.isSuccess()) {
+            handleSignInResult(result);
+        }
+    }
 
-                firebaseAuthWithGoogle(result.getSignInAccount());
-            } else {
-                JSONObject data = new JSONObject();
-                try {
-                    Status status = result.getStatus();
-                    Object code = translateStatusCode(status.getStatusCode());
-                    data.put("code", code);
-                    data.put("message", result.getStatus().toString());
-                } catch (JSONException e) {
-                }
-                raiseEvent("signinfailure", data);
+    private void handleSignInResult(GoogleSignInResult result) {
+        if (result.isSuccess()) {
+
+            firebaseAuthWithGoogle(result.getSignInAccount());
+        } else {
+            JSONObject data = new JSONObject();
+            try {
+                Status status = result.getStatus();
+                Object code = translateStatusCode(status.getStatusCode());
+                data.put("code", code);
+                data.put("message", result.getStatus().toString());
+            } catch (JSONException e) {
             }
+            raiseEvent("signinfailure", data);
         }
     }
 
@@ -270,6 +289,11 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
         }
     }
 
+    @Override
+    public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
+        handleSignInResult(googleSignInResult);
+    }
+
     private Object translateStatusCode(int statusCode) {
         switch(statusCode) {
             case -1:
@@ -312,6 +336,7 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
                 return statusCode;
         }
     }
+
 }
 
 
