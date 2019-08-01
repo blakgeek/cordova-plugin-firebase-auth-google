@@ -33,7 +33,7 @@
         <source-file src="src/ios/FirebaseAuthGooglePlugin.m"/>
         <header-file src="src/ios/AppDelegate+FirebaseAuthGooglePlugin.h"/>
         <source-file src="src/ios/AppDelegate+FirebaseAuthGooglePlugin.m"/>
-        <pod id="Firebase/Auth"/>
+        <pod id="Firebase/Auth" version="~> 6"/>
         <pod id="GoogleSignIn"/>
     </platform>
 
