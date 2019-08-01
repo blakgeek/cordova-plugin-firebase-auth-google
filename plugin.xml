@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-plugin-firebase-auth-google" version="1.1.6">
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="cordova-plugin-firebase-auth-google" version="1.3.0">
     <name>Firebase Authentication</name>
     <description>Adds support for Firebase Authenication to your Cordova/PhoneGap apps.</description>
     <license>Apache 2.0</license>
@@ -33,7 +33,7 @@
         <source-file src="src/ios/FirebaseAuthGooglePlugin.m"/>
         <header-file src="src/ios/AppDelegate+FirebaseAuthGooglePlugin.h"/>
         <source-file src="src/ios/AppDelegate+FirebaseAuthGooglePlugin.m"/>
-        <pod id="Firebase/Auth" version="~> 6"/>
+        <pod id="Firebase/Auth" version="~&gt; 6"/>
         <pod id="GoogleSignIn"/>
     </platform>
 
