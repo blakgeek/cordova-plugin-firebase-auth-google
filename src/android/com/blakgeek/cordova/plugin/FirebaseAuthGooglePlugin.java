@@ -212,7 +212,7 @@ public class FirebaseAuthGooglePlugin extends CordovaPlugin implements OnComplet
 
     private void handleSignInResult(GoogleSignInResult result) {
         if (result.isSuccess()) {
-
+            raiseEvent('authorizing');
             firebaseAuthWithGoogle(result.getSignInAccount());
         } else {
             JSONObject data = new JSONObject();
