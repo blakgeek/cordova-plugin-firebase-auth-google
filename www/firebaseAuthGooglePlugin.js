@@ -3,6 +3,7 @@ const PLUGIN_NAME = 'FirebaseAuthGooglePlugin';
 
 function FirebaseAuth(options) {
 
+    var self = this;
     options = options || {};
     var allowDomains = options.allowDomains ? [].concat(options.allowDomains) : null;
     exec(dispatchEvent, null, PLUGIN_NAME, 'initialize', [allowDomains]);
@@ -31,7 +32,28 @@ function FirebaseAuth(options) {
 
     function dispatchEvent(event) {
 
-        window.dispatchEvent(new CustomEvent(event.type, {detail: event.data}));
+        // dispatch a pre-sign event that can be cancelled
+        if(event.type === 'signinsuccess') {
+
+            var cancelled = !window.dispatchEvent(new CustomEvent('beforeSignInComplete', {
+                details: event.data,
+                cancelable: true
+            }));
+
+            if(cancelled) {
+                self.signOut();
+            } else {
+                window.dispatchEvent(new CustomEvent(event.type, {
+                    details: event.data,
+                    cancelable: true
+                }));
+            }
+        } else {
+            window.dispatchEvent(new CustomEvent(event.type, {
+                details: event.data,
+                cancelable: true
+            }));
+        }
     }
 }
 
