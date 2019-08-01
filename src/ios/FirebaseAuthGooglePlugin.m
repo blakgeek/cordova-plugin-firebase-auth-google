@@ -18,7 +18,7 @@
 - (void)getToken:(CDVInvokedUrlCommand *)command {
 
     FIRUser *currentUser = [FIRAuth auth].currentUser;
-    [currentUser getTokenForcingRefresh:YES
+    [currentUser getIDTokenForcingRefresh:YES
                              completion:^(NSString *_Nullable idToken,
                                           NSError *_Nullable error) {
 
@@ -133,12 +133,13 @@
 
 }
 
-- (void (^)(FIRUser *, NSError *))handleLogin {
-    return ^(FIRUser *user, NSError *error) {
+- (void (^)(FIRAuthDataResult *, NSError *))handleLogin {
+    return ^(FIRAuthDataResult *result, NSError *error) {
 
         if (error == nil) {
+            FIRUser *user = result.user;
             FIRUser *currentUser = [FIRAuth auth].currentUser;
-            [currentUser getTokenWithCompletion:^(NSString *_Nullable idToken,
+            [currentUser getIDTokenWithCompletion:^(NSString *_Nullable idToken,
                                                   NSError *_Nullable error) {
 
                                          NSDictionary *message;
