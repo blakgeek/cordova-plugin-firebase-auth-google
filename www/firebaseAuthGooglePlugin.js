@@ -36,7 +36,7 @@ function FirebaseAuth(options) {
         if(event.type === 'signinsuccess') {
 
             var cancelled = !window.dispatchEvent(new CustomEvent('beforeSignInComplete', {
-                details: event.data,
+                detail: event.data,
                 cancelable: true
             }));
 
@@ -44,13 +44,13 @@ function FirebaseAuth(options) {
                 self.signOut();
             } else {
                 window.dispatchEvent(new CustomEvent(event.type, {
-                    details: event.data,
+                    detail: event.data,
                     cancelable: true
                 }));
             }
         } else {
             window.dispatchEvent(new CustomEvent(event.type, {
-                details: event.data,
+                detail: event.data,
                 cancelable: true
             }));
         }
