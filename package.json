@@ -23,7 +23,7 @@
   "dependencies": {
     "elementtree": "^0.1.6",
     "plist": "^1.2.0",
-    "shelljs": "^0.7.2",
+    "shelljs": "^0.8.5",
     "xcode": "^0.8.9",
     "xml2js": "^0.4.17"
   },
